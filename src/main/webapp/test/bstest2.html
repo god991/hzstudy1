@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>在线尝试 Bootstrap 实例</title>
+    <!--
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+-->
+    <link rel="stylesheet" href="../jslib/bootstrap-3.3.7/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../jslib/bootstrap-table-master/dist/bootstrap-table.css">
+
+    <script src="../jslib/jquery-3.3.1.min.js"></script>
+    <script src="../jslib/bootstrap-3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="../jslib/bootstrap-table-master/dist/bootstrap-table.js"></script>
+    <-- put your locale files after bootstrap-table.js -->
+    <script src="../jslib/bootstrap-table-master/dist/locale/bootstrap-table-zh-CN.js"></script>
+
+    <script type="text/javascript">
+
+        $(function(){
+            $('#archives-table').bootstrapTable({
+                url: "/user/list",//数据源
+                dataField: "rows",//服务端返回数据键值 就是说记录放的键值是rows，分页时使用总记录数的键值为total
+                search: true,//是否搜索
+                cache: false,
+                striped: true,
+                pagination: true,//是否分页
+                sortable: true,          //是否启用排序
+                sortOrder: "asc",          //排序方式
+                //pageNumber:1,
+                pageSize: 10,//单页记录数
+                pageList: [5, 10, 20, 50],//分页步进值
+                sidePagination: "server",//服务端分页
+                contentType: "application/json",//请求数据内容格式 默认是 application/json 自己根据格式自行服务端处理
+                dataType: "json",//期待返回数据类型
+                method: "get",//请求方式
+                searchAlign: "left",//查询框对齐方式
+                silent: true,
+                queryParamsType: "limit",//查询参数组织方式
+                queryParams: function getParams(params) {
+                    var param = {
+                        pageNum: params.pageNumber,
+                        pageSize: params.pageSize,
+                        realName : params.search
+                    };
+                    return param;
+                },
+                responseHandler: function(res) {
+                    return {
+                        "total": res.total,//总页数
+                        "rows": res.rows  //数据
+                    };
+                },
+                searchOnEnterKey: false,//回车搜索
+                showRefresh: true,//刷新按钮
+                showColumns: true,//列选择按钮
+                buttonsAlign: "left",//按钮对齐方式
+                toolbar: "#userToolbarsendCoin",//指定工具栏
+                toolbarAlign: "right",//工具栏对齐方式
+                columns: [
+                    {
+                        title: "userId",//标题
+                        field: "userId",//键名
+                        sortable: true,//是否可排序
+                        order: "desc"//默认排序方式
+                    },
+                    {
+                        field: "userName",
+                        title: "用户名",
+                        sortable: true,
+                        titleTooltip: "this is name"
+                    },
+                    {
+                        field: "pswd",
+                        title: "密码",
+                        sortable: true,
+                    },
+                    {
+                        field: "status",
+                        title: "状态",
+                        sortable: true,
+                        formatter: function (value, row, index) {
+                            if (value==1)
+                                return "有效";
+                            else
+                                return "失效";
+                        }
+                    },{
+                        field: "createTime",
+                        title: "创建时间",
+                        sortable: true,
+                    },
+                    {
+                        field: "lastUpdateTime",
+                        title: "更新时间",
+                        sortable: true,
+                    },
+                    {
+                        field: "updateBy",
+                        title: "更新人",
+                        sortable: true,
+                    },
+                    {
+                        field: "userInfo.id",
+                        title: "操作列",
+                        formatter:function(value, row, rowIndex){
+                            var userId =row.userInfo.id;
+                            var amount =row.amount;
+                            var validDateStart =row.validDateStart;
+                            var validDateEnd =row.validDateEnd;
+                            var realName =row.userInfo.realName;
+                            console.log(userId);
+                            console.log(realName);
+                            console.log(amount);console.log(validDateStart);console.log(validDateEnd);
+                            if(userId!=null){
+                                return'      '+'<a class="btn btn-info" href="javascript:void(0)" rel="external nofollow" rel="external nofollow" rel="external nofollow" onclick="sendCoin(\''+userId+'\',\''+realName+'\',\''+row.id+'\');"> <i class="icon-edit icon-white"></i>分配</a>' +'      '/*+
+            '<a class="btn btn-info" href="javascript:void(0)" rel="external nofollow" rel="external nofollow" rel="external nofollow" onclick="editTw(\''+userId+'\',\''+amount+'\',\''+realName+'\',\''+validDateEnd+'\',\''+row.id+'\');"> <i class="icon-edit icon-white"></i>编辑</a>'*/;
+                            }else{
+                                return '<a class="btn btn-info" href="javascript:void(0)" rel="external nofollow" rel="external nofollow" rel="external nofollow" onclick="sendCoin(\''+userId+'\');"> <i class="icon-edit icon-white"></i>分配</a>';
+                            }
+                        }
+                    }
+                ]
+        })
+    </script>
+</head>
+<body>
+<h1>Hello, world!</h1>
+
+<div class="ibox float-e-margins">
+    <div class="ibox-title">
+        <h5>用户列表</h5>
+        <div class="ibox-tools">
+            <a class="collapse-link">
+                <i class="fa fa-chevron-up"></i>
+            </a>
+        </div>
+    </div>
+    <div class="ibox-content">
+        <div class="ibox float-e-margins">
+            <table id="archives-table" class="table table-hover">
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

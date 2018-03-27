@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="jslib/bootstrap-3.3.7/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="jslib/bootstrap-table-master/dist/bootstrap-table.css">
+
+    <script src="jslib/jquery-3.3.1.min.js"></script>
+    <script src="jslib/bootstrap-3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="jslib/bootstrap-table-master/dist/bootstrap-table.js"></script>
+    <!-- put your locale files after bootstrap-table.js -->
+    <script src="jslib/bootstrap-table-master/dist/locale/bootstrap-table-zh-CN.js"></script>
+    <script src="jslib/extJquery.js"></script>
+
+    <script>
+        //用户列表
+        $(function(){
+            $('#tableUser').bootstrapTable({
+                url: 'user/listUser',
+                columns: [
+                    {
+                        title: "userId",//标题
+                        field: "userId",//键名
+                        sortable: true,//是否可排序
+                        order: "desc"//默认排序方式
+                    },
+                    {
+                        field: "userName",
+                        title: "用户名",
+                        sortable: true,
+                        titleTooltip: "this is name"
+                    },
+                    {
+                        field: "pswd",
+                        title: "密码",
+                        sortable: true,
+                    },
+                    {
+                        field: "status",
+                        title: "状态",
+                        sortable: true,
+                        formatter: function (value, row, index) {
+                            if (value==1)
+                                return "有效";
+                            else
+                                return "失效";
+                        }
+                    },{
+                        field: "createTime",
+                        title: "创建时间",
+                        sortable: true,
+                    },
+                    {
+                        field: "lastUpdateTime",
+                        title: "更新时间",
+                        sortable: true,
+                    },
+                    {
+                        field: "updateBy",
+                        title: "更新人",
+                        sortable: true,
+                    }, {
+                        field: "userId",
+                        title: "操作列",
+                        formatter:function(value, row, rowIndex){
+                            str='<button type="button" class="btn btn-info" data-toggle="modal" onclick="return get_edit_info(\''+value+'\')" data-target="#addUserModal">编辑</button>'
+                                +'&nbsp;<button type="button" class="btn btn-danger" onclick="return delete_info(\''+value+'\')">删除</button>';
+                            return str;
+                        }}]
+            });
+        });
+
+
+        // 删除用户
+        function delete_info(id)
+        {
+            if(!id)
+            {
+                alert('Error！');
+                return false;
+            }
+            // var form_data = new Array();
+
+            $.ajax(
+                {
+                    url: "user/deleteUser",
+                    data:{"userId":id, "act":"del"},
+                    type: "get",
+                    beforeSend:function()
+                    {
+                        $("#tip").html("<span style='color:blue'>正在处理...</span>");
+                        return true;
+                    },
+                    success:function(data)
+                    {
+                        if(data > 0)
+                        {
+                            alert('操作成功');
+                            $("#tip").html("<span style='color:blueviolet'>恭喜，删除成功！</span>");
+
+                            // document.location.href='world_system_notice.php'
+                            location.reload();
+                        }
+                        else
+                        {
+                            $("#tip").html("<span style='color:red'>失败，请重试</span>");
+                            alert('操作失败');
+                        }
+                    },
+                    error:function()
+                    {
+                        alert('请求出错');
+                    },
+                    complete:function()
+                    {
+                        // $('#tips').hide();
+                    }
+                });
+
+            return false;
+        }
+
+        // 编辑表单
+        function get_edit_info(user_id)
+        {
+            if(!user_id)
+            {
+                alert('Error！');
+                return false;
+            }
+            // var form_data = new Array();
+            $.ajax(
+                {
+                    url: "user/getOneUser",
+                    data:{"userId":user_id, "act":"get"},
+                    type: "get",
+                    beforeSend:function()
+                    {
+                        // $("#tip").html("<span style='color:blue'>正在处理...</span>");
+                        return true;
+                    },
+                    success:function(data)
+                    {
+                        if(data)
+                        {
+
+                            // 解析json数据
+                            var data = data;
+
+                            //var data_obj = eval("("+data+")");
+                            var data_obj=data;
+                            // 赋值
+                            $("#userId").val(data_obj.userId);
+                            $("#userName").val(data_obj.userName);
+                            $("#pswd").val(data_obj.pswd);
+                            $("#status").val(data_obj.status);
+                            $("#lastUpdateTime").val(data_obj.lastUpdateTime);
+
+                            // 将input元素设置为readonly
+                            $('#user_id').attr("readonly","readonly");
+                            $("#lastUpdateTime").attr("readonly","readonly");
+                            // location.reload();
+                        }
+                        else
+                        {
+                            $("#tip").html("<span style='color:red'>失败，请重试</span>");
+                            //  alert('操作失败');
+                        }
+                    },
+                    error:function()
+                    {
+                        alert('请求出错');
+                    },
+                    complete:function()
+                    {
+                        // $('#tips').hide();
+                    }
+                });
+
+            return false;
+        }
+
+        // 提交表单
+        function submit_form()
+        {
+            var user_id = $.trim($('#userId').val());
+            var act     = $.trim($('#act').val());
+
+            if(!user_id)
+            {
+                alert('用户ID不能为空！');
+                return false;
+            }
+            var formdata= serializeObject($("#form_data"));
+            var form_data = $("#form_data").serializeArray();
+            //url = "user/updateUser"
+            $.ajax(
+                {
+                    url: "user/updatePost",
+                    contentType: "application/json;charset=UTF-8",
+                    //data:{"form_data":form_data,"act":act},
+                    data:'{"userId":"user12","userName":"userName1","pswd":"mima1","status":0,"lastUpdateTime":"2018-03-26T11:27:13.000+0000"}',
+                    type: "post",
+                    dataType: "json",
+                    beforeSend:function()
+                    {
+                        $("#tip").html("<span style='color:blue'>正在处理...</span>");
+                        return true;
+                    },
+                    success:function(data)
+                    {
+                        if(data > 0)
+                        {
+                            var msg = "添加";
+                            if(act == "edit") msg = "编辑";
+                            $("#tip").html("<span style='color:blueviolet'>恭喜，" +msg+ "成功！</span>");
+                            // document.location.href='system_notice.php'
+                            alert(msg + "OK！");
+                            location.reload();
+                        }
+                        else
+                        {
+                            $("#tip").html("<span style='color:red'>失败，请重试</span>");
+                            alert('操作失败');
+                        }
+                    },
+                    error:function()
+                    {
+                        alert('请求出错');
+                    },
+                    complete:function()
+                    {
+                        $('#acting_tips').hide();
+                    }
+                });
+
+            return false;
+        }
+
+        $(function () { $('#addUserModal').on('hide.bs.modal', function () {
+            // 关闭时清空edit状态为add
+            $("#act").val("add");
+            location.reload();
+        })
+        });
+    </script>
+    <title>用户管理</title>
+</head>
+<body>
+
+<h2>用户列表</h2>
+<table id="tableUser"></table>
+
+
+
+
+
+<!-- 编辑信息模态框 -->
+<form method="post" action="" class="form-horizontal" role="form" id="form_data" onsubmit="return submit_form()" style="margin: 20px;">
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        用户信息
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <label for="userId" class="col-sm-3 control-label">用户ID</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="userId" name="userId" value="{userId}"
+                                       placeholder="请输入用户ID">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="userName" class="col-sm-3 control-label">用户姓名</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="userName" value="" id="userName"
+                                       placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pswd" class="col-sm-3 control-label">密码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="pswd" value="" id="pswd"
+                                       placeholder="密码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="status" class="col-sm-3 control-label">状态</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="status" value="" id="status"
+                                       placeholder="状态">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="lastUpdateTiem" class="col-sm-3 control-label">最后更新时间</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="lastUpdateTiem" value="" id="lastUpdateTiem"
+                                       placeholder="最后更新时间">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="remark" class="col-sm-3 control-label">备注</label>
+                            <div class="col-sm-9">
+                                <textarea  class="form-control"  name="remark" value="{remark}" id="remark"
+                                           placeholder="备注">
+
+                                </textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="submit" class="btn btn-primary" >提交
+                    </button><span id="tip"> </span>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+</form>
+</div>
+</body>
+</html>

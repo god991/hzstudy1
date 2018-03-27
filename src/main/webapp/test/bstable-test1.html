@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../jslib/bootstrap-3.3.7/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../jslib/bootstrap-table-master/dist/bootstrap-table.css">
+
+    <script src="../jslib/jquery-3.3.1.min.js"></script>
+    <script src="../jslib/bootstrap-3.3.7/dist/js/bootstrap.min.js"></script>
+    <script src="../jslib/bootstrap-table-master/dist/bootstrap-table.js"></script>
+    <!-- put your locale files after bootstrap-table.js -->
+    <script src="../jslib/bootstrap-table-master/dist/locale/bootstrap-table-zh-CN.js"></script>
+
+    <script>
+        $(function(){
+            $('#table').bootstrapTable({
+                url: '/user/list',
+                columns: [{
+                    field: 'userId',
+                    title: 'Item ID'
+                }, {
+                    field: 'userName',
+                    title: 'Item Name'
+                }, {
+                    field: 'pswd',
+                    title: 'Item Price'
+                }, ]
+            });
+        })
+    </script>
+
+    <title>bootstrap-table 样例</title>
+</head>
+<body>
+
+<table id="table"></table>
+<br><br>
+<table data-toggle="table" data-url="/user/list">
+    <thead>
+    <tr>
+        <th data-field="userId">Item ID</th>
+        <th data-field="userName">Item Name</th>
+        <th data-field="pswd">Item Price</th>
+    </tr>
+    </thead>
+</table>
+
+
+</body>
+</html>
